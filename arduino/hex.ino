@@ -15,7 +15,7 @@ int maxima[] = {
   CHANNEL_MAX,
   G35::MAX_INTENSITY
 };
-int delayTime = 100;
+int delayTime = 20;
 boolean inError = false;
 boolean waiting = false;
 
@@ -138,11 +138,11 @@ boolean read_frame_layer() {
   if (!advance())                 { return false; }
   while (isDigit(safePeek())) {                  // Read bulb numbers
     int bulbNum = safeParseInt();
-    Serial.print("OK BULB  ");
-    Serial.print(bulbNum);
-    Serial.print(": (");
-    for (int i = 0; i < 4; i = i+1) { Serial.print(colors[i]); if (i < 3) {Serial.print(',');} }
-    Serial.println(')');
+    //Serial.print("OK BULB ");
+    //Serial.print(bulbNum);
+    //Serial.print(": (");
+    //for (int i = 0; i < 4; i = i+1) { Serial.print(colors[i]); if (i < 3) {Serial.print(',');} }
+    //Serial.println(')');
     lights.set_color_if_in_range(bulbNum, colors[3], COLOR(colors[0], colors[1], colors[2]));
     if (!advance())               { return false; } 
     if (safePeek() == ',') {                    
@@ -165,9 +165,7 @@ boolean read_frame() {
   if (safeRead() != '[')       { return false; } // Opening bracket for layers
   while (true) {
     boolean success = read_frame_layer();
-    if (!success)                 { return false; }
-    Serial.println("OK LAYER");
-    
+    if (!success)                 { return false; }    
     if (!advance())               { return false; }
     if (safePeek() == ',') {
       safeRead();
@@ -181,7 +179,7 @@ boolean read_frame() {
 }
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   lights.enumerate();
   Serial.println("READY");
 }
