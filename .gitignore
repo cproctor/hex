@@ -1,1 +1,9 @@
 *.pyc
+client/lib*
+client/bin*
+server/lib*
+server/bin*
+*.swp
+*.swo
+*.egg-info*
+*.db

@@ -31,20 +31,34 @@ class HexDriver(object):
         self.sio = serial.Serial(port, baud, timeout=timeout)
         self.get_response([self.READY])
 
-    def play_animation(self, frames, loop=False, framerate=24, resetTimer=True):
+    def play_animation(self, setup=None, loop=None, framerate=24, resetTimer=True, maxTime=None):
         if resetTimer:
             self.reset_timer()
-        for frame in frames:
-            self.validate_frame(frame)
-        while True:
-            animationStartTime = time.time()
-            for frameNum, frame in enumerate(frames):
-                while time.time() - animationStartTime < (1.0/framerate) * frameNum:
+        if setup:
+            for frame in setup:
+                self.validate_frame(frame)
+        if loop:
+            for frame in loop:
+                self.validate_frame(frame)
+            
+        runStartTime = time.time()
+        
+        if setup:
+            for frameNum, frame in enumerate(setup):
+                if maxTime and time.time() - runStartTime >= maxTime:
+                    return True
+                while time.time() - runStartTime < (1.0/framerate) * frameNum:
+                    time.sleep(self.timedelay)
+                self.send_frame(frame, resetTimer=False) 
+
+        while loop:
+            loopStartTime = time.time()
+            for frameNum, frame in enumerate(loop):
+                if maxTime and time.time() - runStartTime >= maxTime:
+                    return True
+                while time.time() - loopStartTime < (1.0/framerate) * frameNum:
                     time.sleep(self.timedelay)
                 self.send_frame(frame, resetTimer=False)
-            if not loop:
-                break
-        
 
     def send_frame(self, frame, resetTimer=True):
         if resetTimer:
@@ -112,8 +126,8 @@ class HexDriver(object):
         self.sio.write(message)
 
 if __name__ == '__main__':
-    background = [0,0,15,50]
-    chase = [[[background, [(i) % 18]], [[5,5,10,75],[(i+1) % 18]], [[10,10,5,90], [(i+2) % 18]], [[15,15,0,100], [(i+3) % 18]]] for i in range(18)]
+    background = [0,0,15,220]
+    chase = [[[background, [(i) % 18]], [[5,5,10,220],[(i+1) % 18]], [[10,10,5,220], [(i+2) % 18]], [[15,15,0,220], [(i+3) % 18]]] for i in range(18)]
     hd = HexDriver(log=logging.getLogger(__name__))
     hd.send_frame([[background,range(37)]])
     hd.play_animation(chase, loop=True, resetTimer=False)
