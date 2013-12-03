@@ -25,11 +25,17 @@ class HexDriver(object):
     read_delay = 0.001
 
     # On Chris's laptop, the serial port is '/dev/tty.usbmodem1421'
-    def __init__(self, port='/dev/tty.usbmodem1421', baud=115200, timeout=2, log=None):
+    def __init__(self, log=None):
         self.log = log or logging
         self.reset_timer()
-        self.sio = serial.Serial(port, baud, timeout=timeout)
-        self.get_response([self.READY])
+
+    def connect(self, port='/dev/tty.usbmodem1421', baud=115200, timeout=2):
+        try:
+            self.sio = serial.Serial(port, baud, timeout=timeout)
+            self.get_response([self.READY])
+        except OSError:
+            return False
+        return True
 
     def play_animation(self, setup=None, loop=None, framerate=24, resetTimer=True, maxTime=None):
         if resetTimer:
@@ -130,4 +136,4 @@ if __name__ == '__main__':
     chase = [[[background, [(i) % 18]], [[5,5,10,220],[(i+1) % 18]], [[10,10,5,220], [(i+2) % 18]], [[15,15,0,220], [(i+3) % 18]]] for i in range(18)]
     hd = HexDriver(log=logging.getLogger(__name__))
     hd.send_frame([[background,range(37)]])
-    hd.play_animation(chase, loop=True, resetTimer=False)
+    hd.play_animation(setup=None, loop=chase, resetTimer=False)

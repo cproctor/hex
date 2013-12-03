@@ -8,13 +8,22 @@
     <script>
         $(function() {
             runner = new SpellRunner('#spell')
-            //runner.run({{spell}})
             runner.drawHex()
+            runner.runSpell({{spell[4]|default('[]', true)}}, {{spell[5]|default('[]', true)}})
         })
     </script>
 {% endblock %}
 
 
 {% block content %}
+    <div style="width: 300px;">
+        <h1>{{spell[1]}}</h1>
+        <p>by {{spell[0]}}</p>
+        <ul>
+            <li>{{spell[4]}}</li>
+            <li>{{spell[5]}}</li>
+            <li>{{spell[6]}}</li>
+        </ul>
+    </div>
     <div id="spell"></div>
 {% endblock %}

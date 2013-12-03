@@ -12,7 +12,7 @@ SpellRunner.prototype = {
     },
 
     drawHex: function() {
-        this.paper = Raphael(20,20,400,400)
+        this.paper = Raphael(320,20,400,400)
         this.bulbs = []
         _.each(_.range(37), function(bulbNumber) {
             var coords = this.hexToCart(this.constants.bulbCoords[bulbNumber], this.constants.spacing)
@@ -29,7 +29,7 @@ SpellRunner.prototype = {
         if (setup) {
             _.each(setup, function(frame, frameNum) {
                 var runTime = frameNum * 1000 / this.constants.framesPerSecond
-                if ( runTime < maxSeconds * 1000)
+                if ( !maxSeconds || (runTime < maxSeconds * 1000))
                     setTimeout(_.bind(function() {this.applyFrame(frame)}, this), runTime)
             }, this)
         }
@@ -39,7 +39,7 @@ SpellRunner.prototype = {
             var loopFrame = 0
             this.loopIntervalId = setInterval(_.bind(function() {
                 this.applyFrame(loop[loopFrame % loop.length])
-                if (loopFrame * 1000 / this.constants.framesPerSecond + setupTime >= maxSeconds * 1000)
+                if (maxSeconds && (loopFrame * 1000 / this.constants.framesPerSecond + setupTime >= maxSeconds * 1000))
                     this.clearLoopInterval()
                 loopFrame += 1
             }, this), 1000 / this.constants.framesPerSecond)

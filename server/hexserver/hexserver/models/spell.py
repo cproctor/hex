@@ -2,6 +2,9 @@ from db import db_connection
 from user import _user_name_exists, _authenticate_user
 import json
 import time
+import logging
+
+log = logging.getLogger(__name__)
 
 def get_spells(request):
     conn = db_connection(request)
@@ -18,6 +21,13 @@ def get_current_spells(request):
     conn.close()
     return currentSpells
 
+def get_spell_by_time(request, castTime):
+    conn = db_connection(request)
+    cursor = conn.cursor()
+    spell = _get_spell_by_time(cursor, castTime)
+    conn.close()
+    return spell
+    
 def _get_spell_by_time(cursor, castTime):
     cursor.execute("SELECT * FROM spells WHERE cast_time = ?", (castTime,))
     return cursor.fetchone()
@@ -44,12 +54,16 @@ def create_spell(request, params):
         for component in ['setup', 'loop']:
             if params[component]:
                 for frame in params[component]:
-                    assert(validate_frame(frame))
+                    try:
+                        assert(validate_frame(frame))
+                    except:
+                        log.debug(frame)
+                        raise AssertionError()
     except IOError():
         return False
     setup = json.dumps(params['setup']) if params['setup'] else ''
     loop = json.dumps(params['loop']) if params['loop'] else ''
-    cursor.execute('INSERT INTO spells VALUES (?,?,?,?,?,?)', (
+    cursor.execute('INSERT INTO spells VALUES (?,?,?,?,?,?,?)', (
         params['user_name'],
         params['name'], 
         3,

@@ -97,9 +97,8 @@ class HexClient(object):
         colors = self._get_color()
         setup = [[[colors, range(37)]]]
         account = self._get_saved_credentials()
-        print self.conn.create_spell(account['name'], account['animal'], 
+        self._create_and_run_spell(account['name'], account['animal'], 
                 'Color', setup=setup)
-        self.conn.run_spell()
 
     def cast_spell_spirit(self):
         print "Choose a background color:"
@@ -109,11 +108,11 @@ class HexClient(object):
 
         def fade(colorOne, colorTwo, t):
             fadedColor = []
-            for i in range(3):
-                fadedColor.append(colorOne[i] + (colorTwo[i] - colorOne[i]) * t)
+            for i in range(4):
+                fadedColor.append(int(colorOne[i] + (colorTwo[i] - colorOne[i]) * t))
             return fadedColor
 
-        setup = [[[colors, range(37)]]]
+        setup = [[[background, range(37)]]]
         loop = [
             [
                 [background, [(i) % 18]], 
@@ -125,15 +124,27 @@ class HexClient(object):
         account = self._get_saved_credentials()
         print setup
         print loop
-        print self.conn.create_spell(account['name'], account['animal'], 
-                'Spirit', setup=setup, loop=loop)
-        self.conn.run_spell()
+        self._create_and_run_spell(account['name'], account['animal'], 
+                'Spirit', setup, loop)
+
+    def _create_and_run_spell(self, username, animal, name, setup=None, loop=None):
+        spellCreation = self.conn.create_spell(username, animal, 
+                name, setup=setup, loop=loop)
+        if spellCreation['result'] == 'OK':
+            spellCast = self.conn.run_spell()
+            if spellCast['result'] == 'OK':
+                print "Your spell has been cast."
+            else:
+                print "Error casting spell"
+        else:
+            print "Error creating your spell"
+
 
     def _get_color(self, intensity=200):
         colors = []
         for color in ['red', 'green', 'blue']:
             while True:
-                userInput = raw_input("How much %s fo you want? (0-15) " % color)
+                userInput = raw_input("How much %s do you want? (0-15) " % color)
                 if userInput.isdigit():
                     colorValue = int(userInput)
                     if 0 <= colorValue and colorValue <= 15:

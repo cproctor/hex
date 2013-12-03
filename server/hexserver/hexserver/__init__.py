@@ -10,6 +10,8 @@ def main(global_config, **settings):
     config.add_static_view('static', 'static', cache_max_age=3600)
 
     config.add_route('landing', '/')
+    config.add_route('show_current_spell', 'spells/current')
+    config.add_route('show_spell', 'spells/{cast_time}')
 
     config.add_route('api_setup', '/api/setup')
     #config.add_route('api_backup', '/api/backup')
@@ -20,7 +22,6 @@ def main(global_config, **settings):
     config.add_route('api_user_show', '/api/users/{name}')
     config.add_route('api_create_spell', '/api/spells', request_method="POST")
     config.add_route('api_cast_spell', '/api/spells/run')
-    config.add_route('show_spell', 'spells/{name}')
     config.add_route('api_spells', '/api/spells')
     config.add_route('test', '/test')
 

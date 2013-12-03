@@ -1,7 +1,8 @@
 from pyramid.view import view_config, view_defaults
+import pyramid.httpexceptions as exc
 from models.db import create_db
 from models.user import create_user, get_user, get_users, increment_user_score
-from models.spell import get_current_spells, create_spell, mark_spell_complete
+from models.spell import get_current_spells, create_spell, mark_spell_complete, get_spell_by_time
 import sqlite3
 from hex_driver import HexDriver
 import json
@@ -24,9 +25,18 @@ def expect_json(view_callable):
     new_view_callable.__name__ = view_callable.__name__
     return new_view_callable
 
+@view_config(route_name='show_current_spell', renderer='templates/spell/view.jinja2')
+def show_current_spell(request):
+    currentSpell = get_current_spells(request).get('current')
+    return {'request': request, 'spell': currentSpell}
+
 @view_config(route_name='show_spell', renderer='templates/spell/view.jinja2')
 def show_spell(request):
-    return {'request': request}
+    spell = get_spell_by_time(request, request.matchdict['cast_time'])
+    if spell:
+        return {'request': request, 'spell': spell}
+    else:
+        raise exc.HTTPNotFound()
 
 @view_defaults(renderer='json')
 class ApiViews(object):
@@ -97,14 +107,18 @@ class ApiViews(object):
         currentSpell = get_current_spells(self.request)['current']
         if currentSpell:
             hd = HexDriver() 
-            setup = json.loads(currentSpell[4]) if currentSpell[4] else None
-            loop = json.loads(currentSpell[4]) if currentSpell[5] else None
-            hd.play_animation(setup=setup, loop=loop, maxTime=5)
-            mark_spell_complete(self.request, currentSpell[3])
-            increment_user_score(currentSpell[0], 1)
+            if hd.connect():
+                setup = json.loads(currentSpell[4]) if currentSpell[4] else None
+                loop = json.loads(currentSpell[4]) if currentSpell[5] else None
+                hd.play_animation(setup=setup, loop=loop, maxTime=5)
+                mark_spell_complete(self.request, currentSpell[3])
+                increment_user_score(currentSpell[0], 1)
+            else:
+                log.error("Error connecting to hex")
+                return self.error("Could not connect to the hex")
             return self.ok()
         else:
-            return self.error("There are no current spells.")
+            return self.error("There are no current spells")
 
     def ok(self, payload=None):
         response = {'result': 'OK'}
