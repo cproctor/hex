@@ -1,0 +1,20 @@
+{% extends 'templates/base.jinja2' %}
+
+{% block head %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.2/raphael-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+    <script src="{{request.static_url('hexserver:static/spell_runner.js')}}"></script>
+    <script>
+        $(function() {
+            runner = new SpellRunner('#spell')
+            //runner.run({{spell}})
+            runner.drawHex()
+        })
+    </script>
+{% endblock %}
+
+
+{% block content %}
+    <div id="spell"></div>
+{% endblock %}

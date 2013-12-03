@@ -24,6 +24,10 @@ def expect_json(view_callable):
     new_view_callable.__name__ = view_callable.__name__
     return new_view_callable
 
+@view_config(route_name='show_spell', renderer='templates/spell/view.jinja2')
+def show_spell(request):
+    return {'request': request}
+
 @view_defaults(renderer='json')
 class ApiViews(object):
 
