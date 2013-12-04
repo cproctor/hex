@@ -1,6 +1,9 @@
 import serial
 import time
 import logging
+import pika
+import json
+import requests
 
 class HexCommunicationError(Exception):
     pass
@@ -36,6 +39,10 @@ class HexDriver(object):
         except OSError:
             return False
         return True
+
+    def display_ready_pattern(self, readyLevel):
+        readyPattern = [[[[0,15,0,200], range(0, [18, 30, 36, 37][readyLevel])]]]
+        self.play_animation(setup=readyPattern)
 
     def play_animation(self, setup=None, loop=None, framerate=24, resetTimer=True, maxTime=None):
         if resetTimer:
@@ -132,8 +139,41 @@ class HexDriver(object):
         self.sio.write(message)
 
 if __name__ == '__main__':
-    background = [0,0,15,220]
-    chase = [[[background, [(i) % 18]], [[5,5,10,220],[(i+1) % 18]], [[10,10,5,220], [(i+2) % 18]], [[15,15,0,220], [(i+3) % 18]]] for i in range(18)]
-    hd = HexDriver(log=logging.getLogger(__name__))
-    hd.send_frame([[background,range(37)]])
-    hd.play_animation(setup=None, loop=chase, resetTimer=False)
+    #background = [0,0,15,220]
+    #chase = [[[background, [(i) % 18]], [[5,5,10,220],[(i+1) % 18]], [[10,10,5,220], [(i+2) % 18]], [[15,15,0,220], [(i+3) % 18]]] for i in range(18)]
+    #hd.send_frame([[background,range(37)]])
+    #hd.play_animation(setup=None, loop=chase, resetTimer=False)
+
+    logging.basicConfig(level=logging.INFO)
+    log = logging.getLogger(__name__)
+    hd = HexDriver(log=log)
+    if not hd.connect():
+        raise OSError("Error connecting to hex")
+    hd.display_ready_pattern(0)
+
+    def callback(ch, method, properties, body):
+        spell = json.loads(body)
+        hd.play_animation(setup=spell['setup'], loop=spell['loop'], maxTime=10)
+        requests.put('http://localhost:6543/api/spells/%s/complete' % spell['cast_time'])
+        ch.basic_ack(delivery_tag = method.delivery_tag)
+
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    channel = connection.channel()
+    channel.queue_declare(queue='hex')
+    channel.basic_consume(callback, queue='hex')
+    hd.display_ready_pattern(3)
+
+    channel.start_consuming()
+
+
+
+
+
+
+
+
+
+
+
+
+

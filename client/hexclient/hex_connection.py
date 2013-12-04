@@ -33,9 +33,6 @@ class HexConnection(object):
                 {'user_name': user_name, 'spirit_animal': animal, 'name': name, 
                 'setup': setup, 'loop': loop})
 
-    def run_spell(self):
-        return self.api_request('/api/spells/run', 'get')
-        
     jsonHeaders = {
         "Content-Type": 'application/json', 
         'Accept': 'application/json'

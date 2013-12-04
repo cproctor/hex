@@ -12,7 +12,9 @@ requires = [
     'pyramid_debugtoolbar',
     'pyramid_jinja2',
     'waitress',
-    'pyserial'
+    'pyserial',
+    'pika',
+    'requests'
 ]
 
 setup(name='hexserver',

@@ -21,7 +21,7 @@ def main(global_config, **settings):
     config.add_route('api_user_authenticate', 'api/users/authenticate', request_method="POST")
     config.add_route('api_user_show', '/api/users/{name}')
     config.add_route('api_create_spell', '/api/spells', request_method="POST")
-    config.add_route('api_cast_spell', '/api/spells/run')
+    config.add_route('api_confirm_spell_cast', '/api/spells/{cast_time}/complete')
     config.add_route('api_spells', '/api/spells')
     config.add_route('test', '/test')
 

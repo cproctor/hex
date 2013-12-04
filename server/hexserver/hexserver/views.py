@@ -7,6 +7,7 @@ import sqlite3
 from hex_driver import HexDriver
 import json
 import logging
+import pika
 
 log = logging.getLogger(__name__)
 
@@ -98,27 +99,25 @@ class ApiViews(object):
     def api_create_spell(self):
         newSpell = create_spell(self.request, self.request.json_body)
         if newSpell:
+            connection = pika.BlockingConnection(
+                    pika.ConnectionParameters(host='localhost'))
+            channel = connection.channel()
+            channel.queue_declare(queue='hex')
+            channel.basic_publish(exchange='', routing_key='hex',
+                      body=json.dumps(self.format_spell(newSpell)))
+            connection.close()
             return self.ok({'spell': self.format_spell(newSpell)})
         else:
             return self.error("Invalid spell")
 
-    @view_config(route_name='api_cast_spell')
-    def api_cast_spell(self):
-        currentSpell = get_current_spells(self.request)['current']
-        if currentSpell:
-            hd = HexDriver() 
-            if hd.connect():
-                setup = json.loads(currentSpell[4]) if currentSpell[4] else None
-                loop = json.loads(currentSpell[4]) if currentSpell[5] else None
-                hd.play_animation(setup=setup, loop=loop, maxTime=5)
-                mark_spell_complete(self.request, currentSpell[3])
-                increment_user_score(currentSpell[0], 1)
-            else:
-                log.error("Error connecting to hex")
-                return self.error("Could not connect to the hex")
-            return self.ok()
-        else:
-            return self.error("There are no current spells")
+    @view_config(route_name='api_confirm_spell_cast')
+    def api_confirm_spell_cast(self):
+        log.info("Comfirming that spell %s ran" % self.request.matchdict['cast_time'])
+        log.info(self.request.matchdict)
+        castSpell = get_spell_by_time(self.request, self.request.matchdict['cast_time'])
+        if castSpell:
+            mark_spell_complete(self.request, castSpell[3])
+            increment_user_score(self.request, castSpell[0])
 
     def ok(self, payload=None):
         response = {'result': 'OK'}
@@ -133,5 +132,15 @@ class ApiViews(object):
         return {'name': user[0], 'points': user[2]}
     
     def format_spell(self, spell):
-        return spell
+        setup = json.loads(spell[4]) if spell[4] else None
+        loop = json.loads(spell[5]) if spell[5] else None
+        return {
+            'user_name': spell[0],
+            'name': spell[1],
+            'priority': spell[2],
+            'cast_time': spell[3],
+            'setup': setup,
+            'loop': loop,
+            'complete': spell[6]
+        }
 

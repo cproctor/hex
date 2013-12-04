@@ -54,7 +54,7 @@ def _validate_user(params, cursor):
     except KeyError:
         return False
 
-def increment_user_score(username, amount_to_add):
+def increment_user_score(request, username, amount_to_add=1):
     conn = db_connection(request)
     cursor = conn.cursor()
     result = _increment_user_score(username, amount_to_add, cursor)
@@ -67,7 +67,7 @@ def _increment_user_score(username, amount_to_add, cursor):
     if not user:
         return False
     cursor.execute("UPDATE users SET points = ? WHERE name = ?", 
-            (user['points'] + amount_to_add, username))
+            (user[2] + amount_to_add, username))
     return cursor.fetchone() == 1
 
 def _user_name_exists(username, cursor):

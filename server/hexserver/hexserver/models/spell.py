@@ -45,6 +45,10 @@ def create_spell(request, params):
     conn = db_connection(request)
     cursor = conn.cursor()
     spellTime = int(time.time())
+    # We use spellTime as a primary key. So if we should happen to get two spells
+    # at the same second, pretend like the second came a second later.
+    while _get_spell_by_time(cursor, spellTime):
+        spellTime += 1
     try:
         assert(_authenticate_user(params['user_name'], params['spirit_animal'],
                 cursor))

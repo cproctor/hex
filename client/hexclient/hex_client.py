@@ -77,11 +77,13 @@ class HexClient(object):
                 print self.messages['invalid_option']
 
     def _get_spell_options(self):
-        return [
-            "COLOR",
-            "SPIRIT",
-            "BACK"
-        ]
+        response = self.conn.get_user(self._get_user_name())
+        points = response['user']['points']
+        spells = ["COLOR"]
+        if points > 2:
+            spells.append("SPIRIT")
+        spells.append("BACK")
+        return spells
 
     # TODO Pull out these strings
     def cast_spell(self, spell):
@@ -97,7 +99,7 @@ class HexClient(object):
         colors = self._get_color()
         setup = [[[colors, range(37)]]]
         account = self._get_saved_credentials()
-        self._create_and_run_spell(account['name'], account['animal'], 
+        self._create_spell(account['name'], account['animal'], 
                 'Color', setup=setup)
 
     def cast_spell_spirit(self):
@@ -124,21 +126,16 @@ class HexClient(object):
         account = self._get_saved_credentials()
         print setup
         print loop
-        self._create_and_run_spell(account['name'], account['animal'], 
+        self._create_spell(account['name'], account['animal'], 
                 'Spirit', setup, loop)
 
-    def _create_and_run_spell(self, username, animal, name, setup=None, loop=None):
+    def _create_spell(self, username, animal, name, setup=None, loop=None):
         spellCreation = self.conn.create_spell(username, animal, 
                 name, setup=setup, loop=loop)
         if spellCreation['result'] == 'OK':
-            spellCast = self.conn.run_spell()
-            if spellCast['result'] == 'OK':
-                print "Your spell has been cast."
-            else:
-                print "Error casting spell"
+            print "Your spell has been cast."
         else:
             print "Error creating your spell"
-
 
     def _get_color(self, intensity=200):
         colors = []
@@ -228,14 +225,14 @@ class HexClient(object):
         "prompt_animal"     : "What is your spirit animal? ",
         "prompt_option"     : "Please choose an option: ",
         "login_error"       : "Sorry, there was an error logging in",
-        "present_options"   : "Please choose from the following options:",
+        "present_options"   : "\nPlease choose from the following options:",
         "present_spell_options"   : "You know how to cast the following spells:",
         "invalid_option"    : "Sorry, that's not an option.",
         "choose_username"   : "Choose your new wizard name: ",
         "choose_animal"     : "All wizards have spirit animals. What's yours? ",
         "user_created"      : "Wizard %s has been created",
         "goodbye"           : "We'll see you later.",
-        "account_status"    : "Your name is %(name)s and you currently have %(points)s points",
+        "account_status"    : "Your name is %(name)s and you currently have %(points)s points. Keep casting to unlock more spells.",
         "server_error"      : "Sorry, there was a problem talking to the hex server",
         "account_creation_error": "There was a problem creating your account",
         "account_lookup_err": "There was a problem looking up your account",
