@@ -138,7 +138,8 @@ class HexDriver(object):
         self.sio.write(message)
 
 if __name__ == '__main__':
-    configFile = "hex_driver.config.yaml"
+    configFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
+            "hex_driver.config.yaml")
     context = "hex_raspberry_pi"
     with open(configFile) as cf:
         config = yaml.load(cf.read())
