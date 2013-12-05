@@ -81,3 +81,17 @@ def _authenticate_user(name, spirit_animal, cursor):
     cursor.execute("SELECT count(*) FROM users WHERE name = ? AND spirit_animal = ?", 
             (name, spirit_animal))
     return cursor.fetchone()[0] != 0
+
+def spell_duration(points):
+    if points < 5: 
+        return 5
+    elif points < 10:
+        return 10
+    elif points < 20:
+        return 15
+    elif points < 50:
+        return 20
+    elif points < 75:
+        return 25
+    else:
+        return 30
