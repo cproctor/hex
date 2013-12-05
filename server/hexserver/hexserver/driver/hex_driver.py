@@ -3,6 +3,7 @@ import time
 import logging
 import pika
 import json
+import yaml
 import requests
 import os
 
