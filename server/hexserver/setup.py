@@ -15,7 +15,7 @@ requires = [
     'pyserial',
     'pika',
     'requests',
-    'yaml'
+    'pyaml'
 ]
 
 setup(name='hexserver',
