@@ -153,7 +153,7 @@ if __name__ == '__main__':
 
     def callback(ch, method, properties, body):
         spell = json.loads(body)
-        hd.play_animation(setup=spell['setup'], loop=spell['loop'], maxTime=10)
+        hd.play_animation(setup=spell['setup'], loop=spell['loop'], maxTime=spell['spell_duration'])
         requests.put('http://localhost:6543/api/spells/%s/complete' % spell['cast_time'])
         ch.basic_ack(delivery_tag = method.delivery_tag)
 

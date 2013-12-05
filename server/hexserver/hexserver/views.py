@@ -1,7 +1,7 @@
 from pyramid.view import view_config, view_defaults
 import pyramid.httpexceptions as exc
 from models.db import create_db
-from models.user import create_user, get_user, get_users, increment_user_score
+from models.user import create_user, get_user, get_users, increment_user_score, spell_duration
 from models.spell import get_current_spells, create_spell, mark_spell_complete, get_spell_by_time
 import sqlite3
 from hex_driver import HexDriver
@@ -97,16 +97,17 @@ class ApiViews(object):
     @view_config(route_name='api_create_spell')
     @expect_json
     def api_create_spell(self):
-        newSpell = create_spell(self.request, self.request.json_body)
-        if newSpell:
+        newSpellRaw = create_spell(self.request, self.request.json_body)
+        if newSpellRaw:
+            newSpell = self.format_spell(newSpellRaw)
             connection = pika.BlockingConnection(
                     pika.ConnectionParameters(host='localhost'))
             channel = connection.channel()
             channel.queue_declare(queue='hex')
             channel.basic_publish(exchange='', routing_key='hex',
-                      body=json.dumps(self.format_spell(newSpell)))
+                      body=json.dumps(newSpell))
             connection.close()
-            return self.ok({'spell': self.format_spell(newSpell)})
+            return self.ok({'spell': newSpell})
         else:
             return self.error("Invalid spell")
 
@@ -129,9 +130,10 @@ class ApiViews(object):
         return {'result': 'ERROR', 'message': message}
 
     def format_user(self, user):
-        return {'name': user[0], 'points': user[2]}
+        return {'name': user[0], 'points': user[2], 'spell_duration': spell_duration(user[2])}
     
     def format_spell(self, spell):
+        user = self.format_user(get_user(self.request, spell[0]))
         setup = json.loads(spell[4]) if spell[4] else None
         loop = json.loads(spell[5]) if spell[5] else None
         return {
@@ -141,6 +143,7 @@ class ApiViews(object):
             'cast_time': spell[3],
             'setup': setup,
             'loop': loop,
-            'complete': spell[6]
+            'complete': spell[6],
+            'spell_duration': user['spell_duration']
         }
 
