@@ -4,7 +4,6 @@ from models.db import create_db
 from models.user import create_user, get_user, get_users, increment_user_score, spell_duration
 from models.spell import get_current_spells, create_spell, mark_spell_complete, get_spell_by_time
 import sqlite3
-from hex_driver import HexDriver
 import json
 import logging
 import pika
