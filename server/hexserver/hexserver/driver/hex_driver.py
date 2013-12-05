@@ -4,6 +4,7 @@ import logging
 import pika
 import json
 import requests
+import os
 
 class HexCommunicationError(Exception):
     pass
