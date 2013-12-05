@@ -1,0 +1,9 @@
+chris_laptop:
+    serial_port: "/dev/tty.usbmodem1421"
+    hex_server: "http://localhost:6543"
+    rabbit_mq: "localhost"
+
+hex_raspberry_pi:
+    serial_port: "/dev/tty.usbmodem1421"
+    hex_server: "http://hex.local"
+    rabbit_mq: "localhost"

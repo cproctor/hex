@@ -27,12 +27,11 @@ class HexDriver(object):
     timedelay = 0.0001
     read_delay = 0.001
 
-    # On Chris's laptop, the serial port is '/dev/tty.usbmodem1421'
     def __init__(self, log=None):
         self.log = log or logging
         self.reset_timer()
 
-    def connect(self, port='/dev/tty.usbmodem1421', baud=115200, timeout=2):
+    def connect(self, port, baud=115200, timeout=2):
         try:
             self.sio = serial.Serial(port, baud, timeout=timeout)
             self.get_response([self.READY])
@@ -139,25 +138,25 @@ class HexDriver(object):
         self.sio.write(message)
 
 if __name__ == '__main__':
-    #background = [0,0,15,220]
-    #chase = [[[background, [(i) % 18]], [[5,5,10,220],[(i+1) % 18]], [[10,10,5,220], [(i+2) % 18]], [[15,15,0,220], [(i+3) % 18]]] for i in range(18)]
-    #hd.send_frame([[background,range(37)]])
-    #hd.play_animation(setup=None, loop=chase, resetTimer=False)
+    configFile = "hex_driver.config.yaml"
+    context = "hex_raspberry_pi"
+    with open(configFile) as cf:
+        config = yaml.load(cf.read())
 
     logging.basicConfig(level=logging.INFO)
     log = logging.getLogger(__name__)
     hd = HexDriver(log=log)
-    if not hd.connect():
+    if not hd.connect(config[context]["serial_port"]):
         raise OSError("Error connecting to hex")
     hd.display_ready_pattern(0)
 
     def callback(ch, method, properties, body):
         spell = json.loads(body)
         hd.play_animation(setup=spell['setup'], loop=spell['loop'], maxTime=spell['spell_duration'])
-        requests.put('http://localhost:6543/api/spells/%s/complete' % spell['cast_time'])
+        requests.put('%s/api/spells/%s/complete' % (config[context]['hex_server'], spell['cast_time']))
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(config[context]["rabbit_mq"]))
     channel = connection.channel()
     channel.queue_declare(queue='hex')
     channel.basic_consume(callback, queue='hex')
