@@ -7,7 +7,7 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
     config.add_renderer('json', JSON(indent=4))
 
-    config.add_static_view('static', 'static', cache_max_age=3600)
+    config.add_static_view('static', 'hexserver:static', cache_max_age=3600)
 
     config.add_route('landing', '/')
     config.add_route('show_current_spell', 'spells/current')
