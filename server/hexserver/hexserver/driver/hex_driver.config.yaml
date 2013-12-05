@@ -4,6 +4,6 @@ chris_laptop:
     rabbit_mq: "localhost"
 
 hex_raspberry_pi:
-    serial_port: "/dev/tty.usbmodem1421"
+    serial_port: "/dev/ttyACM0"
     hex_server: "http://hex.local"
     rabbit_mq: "localhost"

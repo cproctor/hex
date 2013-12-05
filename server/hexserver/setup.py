@@ -14,7 +14,8 @@ requires = [
     'waitress',
     'pyserial',
     'pika',
-    'requests'
+    'requests',
+    'pyaml'
 ]
 
 setup(name='hexserver',
