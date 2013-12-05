@@ -7,18 +7,18 @@ var SpellRunner = function(selector) {
 
 SpellRunner.prototype = {
 
-    init: function(selector) {
-        this.selector = selector
+    init: function(targetId) {
+        this.targetId = targetId
     },
 
-    drawHex: function() {
-        this.paper = Raphael(320,20,400,400)
+    drawHex: function(targetId) {
+        this.paper = Raphael(this.targetId, this.constants.width, this.constants.height)
         this.bulbs = []
         _.each(_.range(37), function(bulbNumber) {
             var coords = this.hexToCart(this.constants.bulbCoords[bulbNumber], this.constants.spacing)
             var circle = this.paper.circle(200 + coords[0], 200 + coords[1], this.constants.radius)
-            circle.attr("fill", "r#f00-#fff")
-            circle.attr("stroke", "#fff")
+            circle.attr("fill", "r"+ this.constants.startColor + "-" + this.constants.backgroundColor)
+            circle.attr("stroke-width", 0)
             circle.attr("strok-opacity", 0)
             this.bulbs.push(circle)
         }, this)
@@ -71,7 +71,8 @@ SpellRunner.prototype = {
 
     hexToCart: function(hexCoords, scale) {
         scale = scale ? scale : 1
-        var matrix = [[3/2, -1], [3/2, 1], [0, Math.sqrt(3)]]
+        //var matrix = [[3/2, -1], [3/2, 1], [0, Math.sqrt(3)]]
+        var matrix = [[Math.sqrt(3), 0],[1, 3/2],[-1, 3/2]]
         return _.map([0,1], function(cartCoord) {
             return scale * _.reduce(hexCoords, function(memo, hexCoord, i) {
                 return memo + hexCoord * matrix[i][cartCoord]
@@ -80,9 +81,13 @@ SpellRunner.prototype = {
     },
         
     constants: {
+        width: 400,
+        height: 400,
         spacing: 28,
         radius: 24,
         framesPerSecond: 24,
+        backgroundColor: '#ccc',
+        startColor: '#000',
         bulbCoords: {
             0   : [0, 3, 0],
             1   : [0, 2, 1],

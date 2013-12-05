@@ -1,6 +1,30 @@
 {% extends "templates/base.jinja2" %}
 
+{% block head %}
+    <script>
+        $(function() {
+            var runner = new SpellRunner('hex')
+            runner.drawHex()
+
+            var rings = [
+                _.range(36,37),
+                _.range(30, 36),
+                _.range(18, 30),
+                _.range(0, 18)
+            ]
+            var bg = [0,0,0]
+            var fg = [3,12, 15]
+            var ripple = [
+                [[bg, _.range(37)]]],
+                [[
+        })
+    </script>
+{% endblock %}
+
 {% block content %}
-<h1>This is the landing page!</h1>
-<p>The hex server is a classroom spell-casting medium.</p>
+<div id="hex"></div>
+<h1>Cast spells on the hex.</h1>
+<div id="spell-queue">There are no spells scheduled.</div>
+<a href="/learn">Learn to cast</a>
+
 {% endblock %}

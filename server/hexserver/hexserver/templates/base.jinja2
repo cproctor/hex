@@ -3,12 +3,19 @@
   <head>
     <title>{{title}}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.2/raphael-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+    <script src="{{request.static_url('hexserver:static/spell_runner.js')}}"></script>
+    <script src="{{request.static_url('hexserver:static/spell_queue.js')}}"></script>
+    <link href="{{request.static_url('hexserver:static/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{request.static_url('hexserver:static/style.css')}}" rel="stylesheet">
 
     {% block head %}
     {% endblock %}
   </head>
   <body>
-    <div class="container">
+    <div id="container">
         <div class="content">
         {% block content %}
         {% endblock %}
