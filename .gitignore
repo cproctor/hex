@@ -7,3 +7,4 @@ server/bin*
 *.swo
 *.egg-info*
 *.db
+*.DS_Store
