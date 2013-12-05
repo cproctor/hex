@@ -28,10 +28,10 @@ class HexConnection(object):
         return self.api_request("/api/users", "post", 
                 {'name': name, 'spirit_animal': animal})
 
-    def create_spell(self, user_name, animal, name, setup=None, loop=None):
+    def create_spell(self, user_name, animal, name, spell):
         return self.api_request('/api/spells', 'post',
                 {'user_name': user_name, 'spirit_animal': animal, 'name': name, 
-                'setup': setup, 'loop': loop})
+                'setup': spell['setup'], 'loop': spell['loop']})
 
     jsonHeaders = {
         "Content-Type": 'application/json', 

@@ -3,6 +3,7 @@ import os
 import json
 import requests
 from hex_connection import HexConnection, HexCommunicationError
+import spellbook
 
 class Quit(Exception):
     pass
@@ -96,42 +97,23 @@ class HexClient(object):
         self.show_spell_menu()
 
     def cast_spell_color(self):
-        colors = self._get_color()
-        setup = [[[colors, range(37)]]]
+        color = self._get_color()
         account = self._get_saved_credentials()
         self._create_spell(account['name'], account['animal'], 
-                'Color', setup=setup)
+                'Color', spellbook.spell_color(color))
 
     def cast_spell_spirit(self):
         print "Choose a background color:"
         background = self._get_color()
         print "And now choose a color for the spirit"
         spirit = self._get_color()
-
-        def fade(colorOne, colorTwo, t):
-            fadedColor = []
-            for i in range(4):
-                fadedColor.append(int(colorOne[i] + (colorTwo[i] - colorOne[i]) * t))
-            return fadedColor
-
-        setup = [[[background, range(37)]]]
-        loop = [
-            [
-                [background, [(i) % 18]], 
-                [fade(spirit, background, 0.7),[(i+1) % 18]], 
-                [fade(spirit, background, 0.3), [(i+2) % 18]], 
-                [spirit, [(i+3) % 18]]
-            ] for i in range(18)
-        ]
         account = self._get_saved_credentials()
-        print setup
-        print loop
         self._create_spell(account['name'], account['animal'], 
-                'Spirit', setup, loop)
+                'Spirit', spellbook.spell_spirit(background, spirit))
 
-    def _create_spell(self, username, animal, name, setup=None, loop=None):
+    def _create_spell(self, username, animal, name, spell):
         spellCreation = self.conn.create_spell(username, animal, 
-                name, setup=setup, loop=loop)
+                name, spell)
         if spellCreation['result'] == 'OK':
             print "Your spell has been cast."
         else:
@@ -232,7 +214,7 @@ class HexClient(object):
         "choose_animal"     : "All wizards have spirit animals. What's yours? ",
         "user_created"      : "Wizard %s has been created",
         "goodbye"           : "We'll see you later.",
-        "account_status"    : "Your name is %(name)s and you currently have %(points)s points. Keep casting to unlock more spells.",
+        "account_status"    : "Your name is %(name)s and you currently have %(points)s points. You can currently cast spells lasting %(spell_duration)s seconds. Keep casting to unlock more powerful spells.",
         "server_error"      : "Sorry, there was a problem talking to the hex server",
         "account_creation_error": "There was a problem creating your account",
         "account_lookup_err": "There was a problem looking up your account",
@@ -265,7 +247,7 @@ class HexClient(object):
     }
 
 if __name__ == '__main__':
-    hexClient = HexClient()
+    hexClient = HexClient(hex_server='http://192.168.1.23')
     hexClient.start()
 
 
