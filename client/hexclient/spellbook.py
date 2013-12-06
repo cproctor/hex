@@ -67,7 +67,7 @@ def fade(colorOne, colorTwo, t):
     t=0.0 is fully colorOne, and t=1.0 is fully colorTwo"""
     for color in [colorOne, colorTwo]:
         validate_color(color)
-    return [colorOne[i] + (colorTwo[i] - colorOne[i]) * t for i in range(4)]
+    return [int(round(colorOne[i] + (colorTwo[i] - colorOne[i]) * t)) for i in range(4)]
 
 
 # ==========

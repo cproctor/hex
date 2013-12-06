@@ -164,7 +164,7 @@ class HexClient(object):
         animal = raw_input(self.messages['choose_animal'])
         creation = self.conn.create_user(username, animal)
         if creation['result'] == 'OK':
-            print self.messages['user_created']
+            print self.messages['user_created'] % creation['user']['name']
             self._log_in(username, animal)
         else:
             print self.messages['account_creation_error']
@@ -247,7 +247,7 @@ class HexClient(object):
     }
 
 if __name__ == '__main__':
-    hexClient = HexClient(hex_server='http://192.168.1.23')
+    hexClient = HexClient(hex_server='http://hex.local')
     hexClient.start()
 
 
