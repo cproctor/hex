@@ -83,6 +83,7 @@ class HexClient(object):
         spells = ["COLOR"]
         if points > 2:
             spells.append("SPIRIT")
+        spells.append("FLAME")
         spells.append("BACK")
         return spells
 
@@ -92,6 +93,8 @@ class HexClient(object):
             return False
         if spell == 'COLOR':
             self.cast_spell_color()
+        if spell == 'FLAME':
+            self.cast_spell_flame()
         if spell == 'SPIRIT':
             self.cast_spell_spirit()
         self.show_spell_menu()
@@ -110,6 +113,15 @@ class HexClient(object):
         account = self._get_saved_credentials()
         self._create_spell(account['name'], account['animal'], 
                 'Spirit', spellbook.spell_spirit(background, spirit))
+
+    def cast_spell_flame(self):
+        print "Choose a background color:"
+        background  = self._get_color(intensity=100)
+        print "And now choose a color for the flame"
+        flame = self._get_color(intensity=240)
+        account = self._get_saved_credentials()
+        self._create_spell(account['name'], account['animal'], 
+                'Flame', spellbook.spell_flame(background, flame))
 
     def _create_spell(self, username, animal, name, spell):
         spellCreation = self.conn.create_spell(username, animal, 
@@ -227,6 +239,7 @@ class HexClient(object):
         "BACK"              : "  BACK    Don't cast a spell right now",
         "COLOR"             : "  COLOR   Cast the color spell",
         "SPIRIT"            : "  SPIRIT  Cast the spirit spell",
+        "FLAME"             : "  FLAME   Cast the flame spell",
          "hex"              : """
            / \ / \ / \ / \ 
           |   |   |   |   |
