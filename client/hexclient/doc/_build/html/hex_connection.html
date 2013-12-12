@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Hex Connection &mdash; Hex 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Hex 0.1 documentation" href="index.html" />
+    <link rel="prev" title="Spellbook" href="spellbook.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="spellbook.html" title="Spellbook"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hex 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="hex-connection">
+<h1>Hex Connection<a class="headerlink" href="#hex-connection" title="Permalink to this headline">¶</a></h1>
+<p>The <tt class="code docutils literal"><span class="pre">hex_connection</span></tt> contains functions you&#8217;ll use to talk with the Hex
+Server. All communication back and forth is via JSON. Here&#8217;s an example of how
+you could create a new user and then cast a spell. This spell would turn the
+whole Hex yellow:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">hex_connection</span> <span class="kn">import</span> <span class="n">HexConnection</span>
+<span class="kn">import</span> <span class="nn">spellbook</span>
+
+<span class="n">connection</span> <span class="o">=</span> <span class="n">HexConnection</span><span class="p">()</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span><span class="s">&quot;gertrude&quot;</span><span class="p">,</span> <span class="s">&quot;goose&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;OK&#39;</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Created gertrude.&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;There was an error creating gertrude...&quot;</span><span class="p">)</span>
+
+<span class="n">yellow</span> <span class="o">=</span> <span class="n">spell_color</span><span class="p">([</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">create_spell</span><span class="p">(</span><span class="s">&#39;gertrude&#39;</span><span class="p">,</span> <span class="s">&#39;goose&#39;</span><span class="p">,</span> <span class="n">yellow</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;OK&#39;</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;spell&#39;</span><span class="p">])</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Something went wrong.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<span class="target" id="module-hex_connection"></span><dl class="class">
+<dt id="hex_connection.HexConnection">
+<em class="property">class </em><tt class="descclassname">hex_connection.</tt><tt class="descname">HexConnection</tt><big>(</big><em>hex_server='http://hex.local'</em><big>)</big><a class="reference internal" href="_modules/hex_connection.html#HexConnection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hex_connection.HexConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes care of talking with the hex server.</p>
+<dl class="method">
+<dt id="hex_connection.HexConnection.authenticate">
+<tt class="descname">authenticate</tt><big>(</big><em>name</em>, <em>spirit_animal</em><big>)</big><a class="reference internal" href="_modules/hex_connection.html#HexConnection.authenticate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hex_connection.HexConnection.authenticate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether the given name and spirit animal match an account on 
+the hex. If you know your name and spirit animal, there&#8217;s no need to use
+this method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hex_connection.HexConnection.create_spell">
+<tt class="descname">create_spell</tt><big>(</big><em>user_name</em>, <em>spirit_animal</em>, <em>name</em>, <em>spell</em><big>)</big><a class="reference internal" href="_modules/hex_connection.html#HexConnection.create_spell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hex_connection.HexConnection.create_spell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a spell. If there is no spell currently running, the spell 
+will run immediately. Otherwise, the spell will be queued and will run
+when the previous spells have run. You can see the spell queue at 
+<a class="reference external" href="http:/hex.local">http:/hex.local</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hex_connection.HexConnection.create_user">
+<tt class="descname">create_user</tt><big>(</big><em>name</em>, <em>spirit_animal</em><big>)</big><a class="reference internal" href="_modules/hex_connection.html#HexConnection.create_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hex_connection.HexConnection.create_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a user with the provided name and spirit animal</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hex_connection.HexConnection.get_user">
+<tt class="descname">get_user</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/hex_connection.html#HexConnection.get_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hex_connection.HexConnection.get_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets information about a user by name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hex_connection.HexConnection.get_users">
+<tt class="descname">get_users</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/hex_connection.html#HexConnection.get_users"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hex_connection.HexConnection.get_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a list of all users</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="spellbook.html"
+                        title="previous chapter">Spellbook</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/hex_connection.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="spellbook.html" title="Spellbook"
+             >previous</a> |</li>
+        <li><a href="index.html">Hex 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Chris Proctor.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

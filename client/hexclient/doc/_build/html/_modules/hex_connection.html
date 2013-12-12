@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>hex_connection &mdash; Hex 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Hex 0.1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Hex 0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for hex_connection</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="k">class</span> <span class="nc">HexCommunicationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<div class="viewcode-block" id="HexConnection"><a class="viewcode-back" href="../hex_connection.html#hex_connection.HexConnection">[docs]</a><span class="k">class</span> <span class="nc">HexConnection</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="s">&quot;Takes care of talking with the hex server&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hex_server</span><span class="o">=</span><span class="s">&#39;http://localhost:6543&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hex_server</span> <span class="o">=</span> <span class="n">hex_server</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_request</span><span class="p">(</span><span class="s">&#39;/api/setup&#39;</span><span class="p">,</span> <span class="s">&#39;post&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;password&#39;</span><span class="p">:</span> <span class="n">password</span><span class="p">})</span>
+
+<div class="viewcode-block" id="HexConnection.authenticate"><a class="viewcode-back" href="../hex_connection.html#hex_connection.HexConnection.authenticate">[docs]</a>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">animal</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_request</span><span class="p">(</span><span class="s">&quot;/api/users/authenticate&quot;</span><span class="p">,</span> <span class="s">&#39;post&#39;</span><span class="p">,</span>
+                <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s">&#39;spirit_animal&#39;</span><span class="p">:</span> <span class="n">animal</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">response</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;OK&#39;</span>
+</div>
+<div class="viewcode-block" id="HexConnection.get_user"><a class="viewcode-back" href="../hex_connection.html#hex_connection.HexConnection.get_user">[docs]</a>    <span class="k">def</span> <span class="nf">get_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_request</span><span class="p">(</span><span class="s">&quot;/api/users/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span> <span class="s">&#39;get&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="HexConnection.get_users"><a class="viewcode-back" href="../hex_connection.html#hex_connection.HexConnection.get_users">[docs]</a>    <span class="k">def</span> <span class="nf">get_users</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_request</span><span class="p">(</span><span class="s">&#39;/api/users&#39;</span><span class="p">,</span> <span class="s">&#39;get&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="HexConnection.create_user"><a class="viewcode-back" href="../hex_connection.html#hex_connection.HexConnection.create_user">[docs]</a>    <span class="k">def</span> <span class="nf">create_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">animal</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_request</span><span class="p">(</span><span class="s">&quot;/api/users&quot;</span><span class="p">,</span> <span class="s">&quot;post&quot;</span><span class="p">,</span> 
+                <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s">&#39;spirit_animal&#39;</span><span class="p">:</span> <span class="n">animal</span><span class="p">})</span>
+</div>
+<div class="viewcode-block" id="HexConnection.create_spell"><a class="viewcode-back" href="../hex_connection.html#hex_connection.HexConnection.create_spell">[docs]</a>    <span class="k">def</span> <span class="nf">create_spell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">animal</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">spell</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_request</span><span class="p">(</span><span class="s">&#39;/api/spells&#39;</span><span class="p">,</span> <span class="s">&#39;post&#39;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s">&#39;user_name&#39;</span><span class="p">:</span> <span class="n">user_name</span><span class="p">,</span> <span class="s">&#39;spirit_animal&#39;</span><span class="p">:</span> <span class="n">animal</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> 
+                <span class="s">&#39;setup&#39;</span><span class="p">:</span> <span class="n">spell</span><span class="p">[</span><span class="s">&#39;setup&#39;</span><span class="p">],</span> <span class="s">&#39;loop&#39;</span><span class="p">:</span> <span class="n">spell</span><span class="p">[</span><span class="s">&#39;loop&#39;</span><span class="p">]})</span>
+</div>
+    <span class="n">jsonHeaders</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s">&#39;application/json&#39;</span><span class="p">,</span> 
+        <span class="s">&#39;Accept&#39;</span><span class="p">:</span> <span class="s">&#39;application/json&#39;</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">api_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">methods</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;get&#39;</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span>
+            <span class="s">&#39;post&#39;</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span>
+        <span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">hex_server</span> <span class="o">+</span> <span class="n">path</span><span class="p">,</span> 
+                <span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jsonHeaders</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HexCommunicationError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">hc</span> <span class="o">=</span> <span class="n">HexConnection</span><span class="p">()</span>
+    <span class="n">hc</span><span class="o">.</span><span class="n">get_users</span><span class="p">()[</span><span class="s">&#39;users&#39;</span><span class="p">]</span>
+    <span class="n">hc</span><span class="o">.</span><span class="n">get_user</span><span class="p">(</span><span class="s">&#39;chris&#39;</span><span class="p">)[</span><span class="s">&#39;user&#39;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">hc</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="s">&#39;chris&#39;</span><span class="p">,</span> <span class="s">&#39;eerie bison&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Hex 0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Chris Proctor.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

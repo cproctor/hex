@@ -1,0 +1,5 @@
+Spellbook
+=========
+
+.. automodule:: spellbook
+   :members:

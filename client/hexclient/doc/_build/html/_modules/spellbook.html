@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spellbook &mdash; Hex 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Hex 0.1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Hex 0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for spellbook</h1><div class="highlight"><pre>
+<span class="c"># The spellbook contains functions that generate spells, as well as helper</span>
+<span class="c"># functions you can use to write your own spells. Hex Client uses the </span>
+<span class="c"># spellbook, but it can be used directly with Hex Connection as well:</span>
+<span class="c"># </span>
+<span class="c"># from hex_connection import HexConnection</span>
+<span class="c"># hex = HexConnection()</span>
+<span class="c"># colorSpell = spell_color([15,15,0,220])</span>
+<span class="c"># hex.create_spell(&#39;my_name&#39;, &#39;my_spirit_animal&#39;, &#39;spell name&#39;, colorSpell)</span>
+<span class="c"># </span>
+<span class="c"># The structure of every spell is the same:</span>
+<span class="c">#   {</span>
+<span class="c">#       &#39;setup&#39;: [frames...]</span>
+<span class="c">#       &#39;loop&#39;: [frames...],</span>
+<span class="c">#   }</span>
+<span class="c"># </span>
+<span class="c"># Setup runs once and then loop runs forever (the total time available for </span>
+<span class="c"># your program is limited by how many points you have). Each frame is composed</span>
+<span class="c"># of color layers, where each color layer specifies a color and then which lights</span>
+<span class="c"># should have that color. Here&#39;s a color layer that turns the seven center lights</span>
+<span class="c"># green:</span>
+<span class="c">#</span>
+<span class="c"># [ [0, 15, 0, 200], [30, 31, 32, 33, 34, 35, 36] ]</span>
+
+<span class="c"># ===============</span>
+<span class="c"># Built-in spells</span>
+<span class="c"># ===============</span>
+
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randint</span>
+
+<div class="viewcode-block" id="spell_color"><a class="viewcode-back" href="../spellbook.html#spellbook.spell_color">[docs]</a><span class="k">def</span> <span class="nf">spell_color</span><span class="p">(</span><span class="n">color</span><span class="p">):</span>
+    <span class="s">&quot;Set all the lights to a color&quot;</span>
+    <span class="n">validate_color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">&#39;setup&#39;</span><span class="p">:</span> <span class="p">[[[</span><span class="n">color</span><span class="p">,</span> <span class="n">all_lights</span><span class="p">()]]],</span>
+        <span class="s">&#39;loop&#39;</span><span class="p">:</span> <span class="bp">None</span>
+    <span class="p">}</span>
+</div>
+<div class="viewcode-block" id="spell_spirit"><a class="viewcode-back" href="../spellbook.html#spellbook.spell_spirit">[docs]</a><span class="k">def</span> <span class="nf">spell_spirit</span><span class="p">(</span><span class="n">backgroundColor</span><span class="p">,</span> <span class="n">spiritColor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a spirit which runs around the outside ring, leaving a trail </span>
+<span class="sd">    behind her&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="p">[</span><span class="n">backgroundColor</span><span class="p">,</span> <span class="n">spiritColor</span><span class="p">]:</span>
+        <span class="n">validate_color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">setup</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">backgroundColor</span><span class="p">,</span> <span class="n">all_lights</span><span class="p">()]]]</span>
+    <span class="n">loop</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">18</span><span class="p">):</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+            <span class="p">[</span><span class="n">backgroundColor</span><span class="p">,</span>                           <span class="p">[(</span><span class="n">i</span><span class="p">)</span> <span class="o">%</span> <span class="mi">18</span><span class="p">]],</span> 
+            <span class="p">[</span><span class="n">fade</span><span class="p">(</span><span class="n">spiritColor</span><span class="p">,</span> <span class="n">backgroundColor</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span>   <span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">18</span><span class="p">]],</span> 
+            <span class="p">[</span><span class="n">fade</span><span class="p">(</span><span class="n">spiritColor</span><span class="p">,</span> <span class="n">backgroundColor</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span>   <span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">18</span><span class="p">]],</span> 
+            <span class="p">[</span><span class="n">spiritColor</span><span class="p">,</span>                               <span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span> <span class="o">%</span> <span class="mi">18</span><span class="p">]]</span>
+        <span class="p">])</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">&#39;setup&#39;</span><span class="p">:</span> <span class="n">setup</span><span class="p">,</span>
+        <span class="s">&#39;loop&#39;</span><span class="p">:</span> <span class="n">loop</span>
+    <span class="p">}</span>
+</div>
+<span class="k">def</span> <span class="nf">spell_flame</span><span class="p">(</span><span class="n">backgroundColor</span><span class="p">,</span> <span class="n">flameColor</span><span class="p">):</span>
+    <span class="n">setup</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">backgroundColor</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">36</span><span class="p">)],</span> <span class="p">[</span><span class="n">flameColor</span><span class="p">,</span> <span class="n">lights_in_ring</span><span class="p">(</span><span class="mi">0</span><span class="p">)]]]</span>
+    <span class="n">loop</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">flameLevel</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">fadeColor</span> <span class="o">=</span> <span class="n">fade</span><span class="p">(</span><span class="n">flameColor</span><span class="p">,</span> <span class="n">backgroundColor</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+        <span class="n">oldFlameLevel</span> <span class="o">=</span> <span class="n">flameLevel</span>
+        <span class="n">flameLevel</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">flameLevel</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">flameLevel</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">flameLevel</span> <span class="o">==</span> <span class="n">oldFlameLevel</span><span class="p">:</span>
+            <span class="n">loop</span><span class="o">.</span><span class="n">append</span><span class="p">([[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[]]])</span>
+        <span class="k">elif</span> <span class="n">flameLevel</span> <span class="o">&gt;</span> <span class="n">oldFlameLevel</span><span class="p">:</span>
+            <span class="n">loop</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="p">[</span><span class="n">flameColor</span><span class="p">,</span> <span class="n">lights_in_ring</span><span class="p">(</span><span class="n">flameLevel</span><span class="p">)],</span>
+                <span class="p">[</span><span class="n">fadeColor</span><span class="p">,</span> <span class="n">lights_in_ring</span><span class="p">(</span><span class="n">flameLevel</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+            <span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">loop</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="p">[</span><span class="n">fadeColor</span><span class="p">,</span> <span class="n">lights_in_ring</span><span class="p">(</span><span class="n">flameLevel</span><span class="p">)],</span>
+                <span class="p">[</span><span class="n">backgroundColor</span><span class="p">,</span> <span class="n">lights_in_ring</span><span class="p">(</span><span class="n">flameLevel</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+            <span class="p">])</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">&#39;setup&#39;</span><span class="p">:</span> <span class="n">setup</span><span class="p">,</span>
+        <span class="s">&#39;loop&#39;</span><span class="p">:</span> <span class="n">loop</span>
+    <span class="p">}</span>
+        
+
+
+<span class="c"># =======</span>
+<span class="c"># Helpers</span>
+<span class="c"># =======</span>
+<span class="c"># These functions make it easier to define the spells above.</span>
+
+<div class="viewcode-block" id="all_lights"><a class="viewcode-back" href="../spellbook.html#spellbook.all_lights">[docs]</a><span class="k">def</span> <span class="nf">all_lights</span><span class="p">():</span>
+    <span class="s">&quot;Returns a list of all the light numbers&quot;</span>
+    <span class="k">return</span> <span class="nb">range</span><span class="p">(</span><span class="mi">37</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="lights_in_ring"><a class="viewcode-back" href="../spellbook.html#spellbook.lights_in_ring">[docs]</a><span class="k">def</span> <span class="nf">lights_in_ring</span><span class="p">(</span><span class="n">ringNumber</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a list of all the light numbers in a ring of the hex. The center </span>
+<span class="sd">    light is ring 0 and the outer edge is ring 3&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ringNumber</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;You can only get light rings from 0 to 3.&quot;</span><span class="p">)</span>
+    <span class="n">ringBoundaries</span> <span class="o">=</span> <span class="p">[</span><span class="mi">37</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> 
+    <span class="k">return</span> <span class="nb">range</span><span class="p">(</span><span class="n">ringBoundaries</span><span class="p">[</span><span class="n">ringNumber</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">ringBoundaries</span><span class="p">[</span><span class="n">ringNumber</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="fade"><a class="viewcode-back" href="../spellbook.html#spellbook.fade">[docs]</a><span class="k">def</span> <span class="nf">fade</span><span class="p">(</span><span class="n">colorOne</span><span class="p">,</span> <span class="n">colorTwo</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a color partway between colorOne and colorTwo. </span>
+<span class="sd">    t=0.0 is fully colorOne, and t=1.0 is fully colorTwo&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="p">[</span><span class="n">colorOne</span><span class="p">,</span> <span class="n">colorTwo</span><span class="p">]:</span>
+        <span class="n">validate_color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">colorOne</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">colorTwo</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">colorOne</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="n">t</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+
+
+<span class="c"># ==========</span>
+<span class="c"># Validators</span>
+<span class="c"># ==========</span>
+<span class="c"># The functions below check to make sure spells are valid. It&#39;s a good idea to</span>
+<span class="c"># validate your spells before sending them to the server.</span></div>
+<div class="viewcode-block" id="InvalidSpellError"><a class="viewcode-back" href="../spellbook.html#spellbook.InvalidSpellError">[docs]</a><span class="k">class</span> <span class="nc">InvalidSpellError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="s">&quot;An error to represent a situation where we have an invalid spell&quot;</span>
+    <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="validate_spell"><a class="viewcode-back" href="../spellbook.html#spellbook.validate_spell">[docs]</a><span class="k">def</span> <span class="nf">validate_spell</span><span class="p">(</span><span class="n">spell</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="s">&quot;Checks to make sure a spell is valid&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">assert</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">spell</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&quot;tried to interpret </span><span class="si">%s</span><span class="s"> as a spell, but it is not a dictionary&quot;</span> <span class="o">%</span> <span class="n">spell</span><span class="p">)</span>
+        <span class="k">assert</span><span class="p">(</span><span class="n">spell</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;setup&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">spell</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;loop&#39;</span><span class="p">),</span> <span class="s">&quot;spell </span><span class="si">%s</span><span class="s"> should define setup, loop, or both&quot;</span> <span class="o">%</span> <span class="n">spell</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">programPart</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;setup&#39;</span><span class="p">,</span> <span class="s">&#39;loop&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">spell</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">programPart</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">assert</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">spell</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">programPart</span><span class="p">),</span> <span class="nb">list</span><span class="p">),</span> <span class="s">&quot;in spell </span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s"> is </span><span class="si">%s</span><span class="s">, but it should be a list if it is going to be defined&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">spell</span><span class="p">,</span> <span class="n">programPart</span><span class="p">,</span> <span class="n">spell</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">programPart</span><span class="p">)))</span>
+                <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">spell</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">programPart</span><span class="p">):</span>
+                    <span class="n">validate_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidSpellError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="bp">True</span>
+</div>
+<span class="k">def</span> <span class="nf">validate_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span> 
+        <span class="k">assert</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s">&quot;tried to interpret </span><span class="si">%s</span><span class="s"> as a frame, but it is not a list&quot;</span> <span class="o">%</span> <span class="n">frame</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">colorLayer</span> <span class="ow">in</span> <span class="n">frame</span><span class="p">:</span> 
+            <span class="k">assert</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">colorLayer</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s">&quot;color layer </span><span class="si">%s</span><span class="s"> should be a list&quot;</span> <span class="o">%</span> <span class="n">colorLayer</span><span class="p">)</span>
+            <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">colorLayer</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&quot;color layer </span><span class="si">%s</span><span class="s"> should have exactly two elements: a color and a list of light numbers&quot;</span> <span class="o">%</span> <span class="n">colorLayer</span><span class="p">)</span>
+            <span class="n">validate_color</span><span class="p">(</span><span class="n">colorLayer</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">lights</span> <span class="o">=</span> <span class="n">colorLayer</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">assert</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">lights</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s">&quot;the second element of color layer </span><span class="si">%s</span><span class="s"> should be a list of light numbers&quot;</span> <span class="o">%</span> <span class="n">colorLayer</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">lightNum</span> <span class="ow">in</span> <span class="n">lights</span><span class="p">:</span>
+                <span class="k">assert</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">lightNum</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s">&quot;Found </span><span class="si">%s</span><span class="s"> in your list of light numbers (</span><span class="si">%s</span><span class="s">); all elements of this list should be integers&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lightNum</span><span class="p">,</span> <span class="n">lights</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidSpellError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="bp">True</span>
+
+<span class="k">def</span> <span class="nf">validate_color</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span> 
+        <span class="k">assert</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s">&quot;color </span><span class="si">%s</span><span class="s"> should be a list&quot;</span> <span class="o">%</span> <span class="n">color</span><span class="p">)</span>
+        <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">color</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s">&quot;color </span><span class="si">%s</span><span class="s"> should have exactly four values&quot;</span> <span class="o">%</span> <span class="n">color</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">colorValue</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">color</span><span class="p">):</span>
+            <span class="k">assert</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">colorValue</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s">&quot;color value </span><span class="si">%s</span><span class="s"> should be an integer&quot;</span> <span class="o">%</span> <span class="n">colorValue</span><span class="p">)</span>
+            <span class="k">assert</span><span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">colorValue</span><span class="p">,</span> <span class="s">&quot;color value </span><span class="si">%s</span><span class="s"> is less than the minimum, which is 0&quot;</span> <span class="o">%</span> <span class="n">colorValue</span><span class="p">)</span>
+            <span class="n">maxima</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">255</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="n">colorValue</span> <span class="o">&lt;=</span> <span class="n">maxima</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s">&quot;color value </span><span class="si">%s</span><span class="s"> is greater than the maximum, which is </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">colorValue</span><span class="p">,</span> <span class="n">maxima</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidSpellError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+                
+                
+            
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Hex 0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Chris Proctor.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

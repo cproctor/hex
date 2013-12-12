@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Writing More Spells &mdash; Hex 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Hex 0.1 documentation" href="index.html" />
+    <link rel="next" title="Spellbook" href="spellbook.html" />
+    <link rel="prev" title="Hex Client" href="hex_client.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="spellbook.html" title="Spellbook"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="hex_client.html" title="Hex Client"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hex 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="writing-more-spells">
+<h1>Writing More Spells<a class="headerlink" href="#writing-more-spells" title="Permalink to this headline">¶</a></h1>
+<p>When you want to start writing your own spells, you&#8217;ll probably want to write a
+program in python.</p>
+<div class="section" id="spell-structure">
+<h2>Spell structure<a class="headerlink" href="#spell-structure" title="Permalink to this headline">¶</a></h2>
+<p>A spell is a dictionary with two possible keys: setup and loop. If setup is
+defined, it will be run once at the beginning of the spell. If loop is defined,
+it will run over and over until your time limit is reached. You may define both
+setup and loop, but at least one must be defined for a spell to be valid.
+Setup and loop should each be a list of frames:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">spell</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;setup&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="c"># A list of frames...</span>
+    <span class="s">&#39;loop&#39;</span><span class="p">:</span> <span class="p">[]</span> <span class="c"># Another list of frames...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="section" id="frames">
+<h3>Frames<a class="headerlink" href="#frames" title="Permalink to this headline">¶</a></h3>
+<p>Any animation consists of frames&#8211;still pictures&#8211;which change rapidly. The Hex
+tries to show 24 frames per second, but sometimes lags a bit slower.</p>
+<p>Each frame is a list containing color layers. Each color layer is a list of
+two lists&#8211;the first defines a color and the second lists which bulbs
+should be set to that color. By using several color layers in a frame, you can
+create a frame which sets each bulb to the color you want.</p>
+<p>Many times you don&#8217;t need to change a bulb&#8217;s color from one frame to the next.
+If you don&#8217;t change a bulb&#8217;s color in a frame, it stays the same color. Here&#8217;s an
+example frame which sets bulb 0 to be red, bulb 1 to be green, and bulb 2 to be blue:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">frame</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">],</span>
+    <span class="p">[</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">],</span>
+    <span class="p">[</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">]</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="colors">
+<h3>Colors<a class="headerlink" href="#colors" title="Permalink to this headline">¶</a></h3>
+<p>Every time you define a color layer, you need to specify a color. A color is a list
+of four integers. The first three specify how much red, green, and blue you want,
+from 0 to 15. The fourth number specifies how bright you want the light to be, from 0
+to 255. Here are a few colors:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">red</span>     <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">]</span>
+<span class="n">green</span>   <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">]</span>
+<span class="n">blue</span>    <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">255</span><span class="p">]</span>
+<span class="n">yellow</span>  <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">]</span>
+<span class="n">magenta</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">255</span><span class="p">]</span>
+<span class="n">cyan</span>    <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">255</span><span class="p">]</span>
+<span class="n">white</span>   <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">255</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="lights">
+<h3>Lights<a class="headerlink" href="#lights" title="Permalink to this headline">¶</a></h3>
+<p>The second part of each color layer is a list of lights. Each light in the hex has a
+number:</p>
+<div class="highlight-python"><pre>       / \ / \ / \ / \
+      | 3 | 2 | 1 | 0 |
+     / \ / \ / \ / \ / \
+    | 4 | 20| 19| 18| 17|
+   / \ / \ / \ / \ / \ / \
+  | 5 | 21| 31| 30| 29| 16|
+ / \ / \ / \ / \ / \ / \ / \
+| 6 | 22| 32| 36| 35| 28| 15|
+ \ / \ / \ / \ / \ / \ / \ /
+  | 7 | 23| 33| 34| 27| 14|
+   \ / \ / \ / \ / \ / \ /
+    | 8 | 24| 25| 26| 13|
+     \ / \ / \ / \ / \ /
+      | 9 | 10| 11| 12|
+       \ / \ / \ / \ /</pre>
+</div>
+<p>However, you&#8217;ll quickly get tired of writing out lists by hand. The
+<a class="reference internal" href="spellbook.html"><em>Spellbook</em></a> module has some handy functions like <tt class="code docutils literal"><span class="pre">all_lights</span></tt> and
+<tt class="code docutils literal"><span class="pre">lights_in_ring</span></tt> which will return a list of lights for you. And you
+can always use the built-in <tt class="code docutils literal"><span class="pre">range</span></tt> function to get a list. Check out
+the <a class="reference external" href="http://docs.python.org/2/library/functions.html#range">documentation on range</a>
+&#8211;it&#8217;s really powerful. <tt class="code docutils literal"><span class="pre">range(0,</span> <span class="pre">18,</span> <span class="pre">3)</span></tt> returns a list from 0 to 18,
+counting by 3.</p>
+</div>
+<div class="section" id="putting-it-all-together">
+<h3>Putting it all together<a class="headerlink" href="#putting-it-all-together" title="Permalink to this headline">¶</a></h3>
+<p>Here&#8217;s an example program that casts a rather annoying spell: The whole Hex will
+flash cyan, yellow, and magenta in turn:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">hex_connection</span> <span class="kn">import</span> <span class="n">HexConnection</span>
+<span class="kn">from</span> <span class="nn">spellbook</span> <span class="kn">import</span> <span class="n">all_lights</span>
+
+<span class="n">connection</span> <span class="o">=</span> <span class="n">HexConnection</span><span class="p">()</span>
+
+<span class="n">cyanFrame</span>    <span class="o">=</span> <span class="p">[[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span> <span class="n">all_lights</span><span class="p">()</span> <span class="p">]]</span>
+<span class="n">yellowFrame</span>  <span class="o">=</span> <span class="p">[[[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span> <span class="n">all_lights</span><span class="p">()</span> <span class="p">]]</span>
+<span class="n">magentaFrame</span> <span class="o">=</span> <span class="p">[[[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span> <span class="n">all_lights</span><span class="p">()</span> <span class="p">]]</span>
+
+<span class="n">spell</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;setup&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;loop&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">cyanFrame</span><span class="p">,</span> <span class="n">yellowFrame</span><span class="p">,</span> <span class="n">magentaFrame</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="c"># Let&#39;s assume we already have a user called gertrude,</span>
+<span class="c"># whose spirit animal is goose.</span>
+<span class="n">connection</span><span class="o">.</span><span class="n">create_spell</span><span class="p">(</span><span class="s">&#39;gertrude&#39;</span><span class="p">,</span> <span class="s">&#39;goose&#39;</span><span class="p">,</span> <span class="n">spell</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Writing More Spells</a><ul>
+<li><a class="reference internal" href="#spell-structure">Spell structure</a><ul>
+<li><a class="reference internal" href="#frames">Frames</a></li>
+<li><a class="reference internal" href="#colors">Colors</a></li>
+<li><a class="reference internal" href="#lights">Lights</a></li>
+<li><a class="reference internal" href="#putting-it-all-together">Putting it all together</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="hex_client.html"
+                        title="previous chapter">Hex Client</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="spellbook.html"
+                        title="next chapter">Spellbook</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/writing_more_spells.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="spellbook.html" title="Spellbook"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="hex_client.html" title="Hex Client"
+             >previous</a> |</li>
+        <li><a href="index.html">Hex 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Chris Proctor.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>
