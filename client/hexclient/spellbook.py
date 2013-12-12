@@ -55,6 +55,7 @@ def spell_spirit(backgroundColor, spiritColor):
     }
 
 def spell_flame(backgroundColor, flameColor):
+    "Creates a flickering flame at the center of the Hex"
     setup = [[[backgroundColor, range(36)], [flameColor, lights_in_ring(0)]]]
     loop = []
     flameLevel = 2
