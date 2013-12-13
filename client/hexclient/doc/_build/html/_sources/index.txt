@@ -15,7 +15,7 @@ Watch out, though--this person will probably deny being the creator at first.
 There are several different ways cast spells on the hex. To get started with
 any of them, you'll need to install the hex_client library::
 
-  sudo easy_install hex_client
+  sudo easy_install HexClient
 
 
 The simplest way to cast spells is to just run :code:`hex_client`. You can read more 
