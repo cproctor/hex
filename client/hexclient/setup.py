@@ -1,9 +1,10 @@
 from setuptools import setup, find_packages
 setup(
     name = "HexClient",
-    version = "0.1",
-    packages = find_packages(),
-    scripts = ['hex_client.py'],
+    version = "0.1.2",
+    #packages = find_packages(),
+    py_modules = ['hex_client', 'hex_connection', 'spellbook'],
+    scripts = ['hex_client'],
 
     # Project uses reStructuredText, so ensure that the docutils get
     # installed or upgraded on the target machine
@@ -14,7 +15,7 @@ setup(
 
     package_data = {
         # If any package contains *.txt or *.rst files, include them:
-        #'': ['*.txt', '*.rst'],
+        '': ['*.txt', '*.rst']
         # And include any *.msg files found in the 'hello' package, too:
         #'hello': ['*.msg'],
     },
