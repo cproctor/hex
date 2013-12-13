@@ -28,7 +28,7 @@ decided to space the bulbs three inches apart on center, giving me a twenty-four
 inch diameter hexagon. I had a chance to visit Tap Plastics to buy some diffusing 
 acrylic plastic--living out my fantasy of having majored in mechanical engineering!
 
-[Read more words!](construction/diagram.jpg)
+![Construction diagram](construction/diagram.jpg)
 
 Wires, solder, and embedded circuits
 ------------------------------------
@@ -46,7 +46,7 @@ send out messages addressed to 0, 1, 2, 3, etc. The first bulb consumes the firs
 then relays the rest; the second bulb consumes the second message and then relays the rest,
 and so on. 
 
-[Read more words!](construction/diagram2.jpg)
+![Construction diagram](construction/diagram2.jpg)
 
 Arduino
 -------
@@ -62,7 +62,7 @@ which the arduino tells its client when it has finished reading the buffer and i
 for more. Communication errors are not uncommon, so I had to choose a way for the Arduino
 to validate the messages it receives and request retransmission of any that are invalid.
 
-[Read more words!](construction/installing_lights.jpg)
+![Installing the lights](construction/installing_lights.jpg)
 
 Raspberry Pi
 ------------
@@ -76,14 +76,14 @@ its own network so that I could ssh into it. The first time I tried to set this 
 mis-configured the script so that the machine wouldn't boot at all. I had to wipe its 
 memory and start over. 
 
-[Read more words!](construction/lights_lit2.jpg)
+![Lights lit](construction/lights_lit2.jpg)
 
 Hex Driver
 ----------
 I wrote a python program which listens on a message queue for light programs, validates
 them, and then sends them chunk by chunk to the arduino. 
 
-[Documentation](construction/documentation.jpg)
+![Documentation](construction/documentation.jpg)
 
 Hex Server
 ----------
@@ -92,7 +92,7 @@ and praise other peoples' spells. The hex server implements the API, hosts
 documentation for the client modules, and has an interactive javascript-based 
 renderer to show spells. 
 
-[Lights Lit](construction/lights_lit.jpg)
+![Lights Lit](construction/lights_lit.jpg)
 
 Hex Client
 ----------
