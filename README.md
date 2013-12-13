@@ -1,6 +1,19 @@
 hex: a classroom spell-casting medium
 ===
 
+I wanted to build an array of lights that I could put up on the wall in the 
+gallery at school, without telling anybody where it came from. The only clue 
+about its origins or purpose will be a small sign containing a web address: 
+http://hex.local Students who go to this URL will find a page served by the
+device which explains how to cast spells on the lights. My students now have
+all the technical skills they need to for this--they know how to write basic 
+python programs, how to install python packages, and how to think about an 
+animation as a sequence of numbers. This should be a fun challenge which 
+reinforces their ability to learn new coding skills independently and to 
+have an impact on the world through them. 
+Plus, we all like the idea of Hogwarts--of having something magical about your
+school that you can discover.
+
 Hex was also an opportunity to exercise a "full stack" of technology, from 
 physically building the box with a tablesaw to writing documentation for the 
 client program in sphinx. Here's a bottom-to-top tour of the project:
